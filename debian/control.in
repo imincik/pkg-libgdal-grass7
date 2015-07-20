@@ -1,0 +1,22 @@
+Source: libgdal-grass
+Section: science
+Priority: extra
+Maintainer: Debian GIS Project <pkg-grass-devel@lists.alioth.debian.org>
+Uploaders: Francesco Paolo Lovergine <frankie@debian.org>
+Build-Depends: debhelper (>= 8), d-shlibs, libgdal-dev (>= 1.9.0), pkg-config, grass7-dev (>= 7.0.0), 
+ grass7 (>= 7.0.0), libproj-dev, libpq-dev
+Standards-Version: 3.9.1
+Homepage: http://www.gdal.org/
+Vcs-Browser: http://git.debian.org/?p=pkg-grass/gdal-grass.git
+Vcs-Git: git://git.debian.org/git/pkg-grass/gdal-grass.git
+
+Package: libgdal1-1.10.0-grass
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, @GRASS_ABI@, ${misc:Depends}
+Recommends: gdal-bin
+Description: GRASS extension for the GDAL library
+ GDAL is a translator library for raster geospatial data formats.
+ As a library, it presents a single abstract data model to the
+ calling application for all supported formats. This extension
+ provides access to GRASS data via GDAL.

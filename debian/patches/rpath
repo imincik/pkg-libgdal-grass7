@@ -1,0 +1,15 @@
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -47,10 +47,10 @@ distclean: clean
+ 
+ 
+ $(GLIBNAME):	grass57dataset.o
+-	$(LD_SHARED) $(LDFLAGS) grass57dataset.o $(LIBS) -o $(GLIBNAME)
++	$(LD_SHARED) $(LDFLAGS) grass57dataset.o $(LIBS) -o $(GLIBNAME) -Wl,-rpath,/usr/lib/grass70/lib
+ 
+ $(OLIBNAME):	ogrgrassdriver.o ogrgrassdatasource.o ogrgrasslayer.o 
+-	$(LD_SHARED) $(LDFLAGS) ogrgrassdriver.o ogrgrassdatasource.o ogrgrasslayer.o $(LIBS) -o $(OLIBNAME)
++	$(LD_SHARED) $(LDFLAGS) ogrgrassdriver.o ogrgrassdatasource.o ogrgrasslayer.o $(LIBS) -o $(OLIBNAME) -Wl,-rpath,/usr/lib/grass70/lib
+ 
+ %.o:	%.cpp
+ 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<

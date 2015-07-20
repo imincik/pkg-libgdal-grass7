@@ -1,0 +1,19 @@
+How to create an upstream tarball for the gdal-grass plugin
+-----------------------------------------------------------
+
+The gdal-grass source tarball can be generated starting from
+the gdal debianized source as follows:
+
+apt-get source gdal
+dpkg-source -x gdal_*-*.dsc
+cd gdal-*
+debian/rules gdal-grass
+
+It will generate a gdal-grass upstream tarball in the directory
+where you unpack the Debian sources.
+
+The gdal source provides the gdal-grass stanza since 1.5.2-1,
+with previous versions you need to create the tarball by
+configuring the package and run `make dist' within the
+frmts/grass directory.
+

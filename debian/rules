@@ -1,0 +1,87 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+#
+# Debian package by Alessandro Amici 2002-2003. 
+# Maintained by DebianGis team since 2005.
+# Based on: GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+PKGNAME=$(shell grep Package: debian/control.in|cut -d' ' -f2)
+GRASS=grass7$(subst .,,$(shell pkg-config --modversion grass|cut -d. -f1,2))
+#GRASS_ABI=grass$(subst .,,$(shell pkg-config --modversion grass|cut -d. -f1,2,3|sed -e 's/RC/-/'))
+GDAL=$(shell cat VERSION|cut -d. -f1,2)
+
+# Abort if source and gdal have not the same versions.
+#ifneq ($(shell gdal-config --version),$(shell cat VERSION))
+#$(error GDAL version and GDAL GRASS plugin version are not aligned. Please, upload a proper plugin source version.)
+#endif
+
+#debian/control: debian/control.in
+	#sed -e 's/@GRASS_ABI@/$(GRASS_ABI)/'  $< >$@
+
+lintian-overrides: debian/$(PKGNAME).lintian-overrides
+debian/$(PKGNAME).lintian-overrides: debian/lintian-overrides.in
+	sed -e 's/@GDAL@/$(GDAL)/' -e 's/@GRASS@/$(GRASS)/' -e 's/@PKGNAME@/$(PKGNAME)/' $< >$@
+
+config.status: debian/control lintian-overrides
+	dh_testdir
+	
+	@echo "Depending on $(GRASS)"
+	#if [ `grep "$(GRASS_ABI)" debian/control|wc -l` -eq 0 ]; then \
+		#sed -e 's/@GRASS_ABI@/$(GRASS_ABI)/' debian/control.in >debian/control; \
+	#fi
+	./configure --prefix=/usr --with-grass=/usr/lib/$(GRASS)0 --with-autoload=/usr/lib/gdalplugins/$(GDAL) --with-postgres-includes=/usr/include/postgresql
+
+build: build-stamp
+build-stamp: config.status
+	dh_testdir
+
+	$(MAKE) 
+
+	touch build-stamp
+
+clean: 
+	dh_testdir
+	dh_testroot
+
+	[ ! -f $(CURDIR)/Makefile ] || $(MAKE) distclean
+
+	dh_clean config.status
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+	mkdir -p $(CURDIR)/debian/$(PKGNAME)/usr/lib/$(GDAL)/grass
+	$(MAKE) install AUTOLOAD_DIR=$(CURDIR)/debian/$(PKGNAME)/usr/lib/gdalplugins/$(GDAL) \
+		        GRASSTABLES_DIR=$(CURDIR)/debian/$(PKGNAME)/usr/lib/$(GDAL)/grass
+	# removes redundant stuff already installed by grass
+	rm -rf $(CURDIR)/debian/$(PKGNAME)/usr/lib/$(GDAL)
+
+binary-indep: build install
+# Do nothing
+
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installchangelogs
+	dh_lintian
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps -l.:/usr/lib/$(GRASS)/lib 
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-arch binary-indep
+
+.PHONY: build clean binary-arch binary-indep binary install lintian-overrides
